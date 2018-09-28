@@ -1,13 +1,10 @@
 {
   "name": "node-flywaydb",
-  "version": "0.1.4",
+  "version": "1.0.0",
   "description": "NodeJs wrapper for flywaydb cli",
   "main": "index.js",
   "bin": {
     "flyway": "./bin/flyway"
-  },
-  "scripts": {
-    "install": "node install.js"
   },
   "repository": {
     "type": "git",
@@ -30,5 +27,8 @@
     "progress": "^1.1.8",
     "request": "^2.75.0",
     "request-progress": "^2.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^5.6.0"
   }
 }
