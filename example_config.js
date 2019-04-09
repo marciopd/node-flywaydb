@@ -1,11 +1,11 @@
 var env = process.env;
 
 module.exports = {
-	url: `jdbc:postgresql://${env.PGHOST}:${env.PGPORT}/${env.PGDATABASE}`,
-	schemas: 'public',
-	locations: 'filesystem:sql/migrations',
-	user: env.PGUSER,
-	password: env.PGPASSWORD,
+    url: `jdbc:postgresql://${env.PGHOST}:${env.PGPORT}/${env.PGDATABASE}`,
+    schemas: 'public',
+    locations: 'filesystem:sql/migrations',
+    user: env.PGUSER,
+    password: env.PGPASSWORD,
     sqlMigrationSuffix: '.pgsql',
     version: '4.0.3', // optional, empty or missing will download the latest
     JAVA_OPTS: [ // optional, use this if you are needing to configure a mavinPlugin
