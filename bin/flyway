@@ -8,8 +8,6 @@ const path = require('path');
 const spawn = require('child_process').spawn;
 const download = require('../lib/download');
 
-const IGNORED_CONFIG_ARGS = (['version', 'JAVA_OPTS', 'mavinPlugins']).reduce((res, key) => res[key] = true && res, {});
-
 process.title = 'flyway';
 program
     .version(pkg.version)
@@ -43,6 +41,15 @@ function makeCommand(name, desc) {
         .action(exeCommand);
 }
 
+function configFlywayArgs(config) {
+    const flywayArgs = config.flywayArgs || {};
+    const flywayArgsKeys = Object.keys(flywayArgs);
+
+    return flywayArgsKeys.map(function(key) {
+        return `-${key}=${flywayArgs[key]}`;
+    });
+}
+
 function exeCommand(cmd) {
     if(!program.configfile) {
         throw new Error('Config file option is required');
@@ -50,26 +57,18 @@ function exeCommand(cmd) {
 
     const config = require(path.resolve(program.configfile));
 
-    download.ensureArtifacts(config, function(err, resolver) {
-        const configArgs = Object.keys(config);
+    download.ensureArtifacts(config, function(err, flywayBin) {
         const workingDir = process.cwd();
-        const relativeLibDirs = resolver && resolver.libDirs.map(x => path.relative(workingDir, x)).join(path.delimiter);
 
         if(err) {
             throw new Error(err);
         }
 
-        const args = resolver.argsPrefix
-            .concat(['-cp', relativeLibDirs])
-            .concat(config.JAVA_OPTS || [])
-            .concat(['org.flywaydb.commandline.Main', cmd._name])
-            .concat(
-                configArgs
-                    .filter(x => IGNORED_CONFIG_ARGS[x] || !!config[x])
-                    .map(x => `-${x}=${config[x].replace(/\s/g, '\\ ')}`)
-            );
+        const args = configFlywayArgs(config)
+            .concat([cmd._name]);
 
-        const child = spawn(resolver.bin, args, {
+        const child = spawn(flywayBin, args, {
+            env: Object.assign({}, process.env, config.env),
             cwd: workingDir,
             stdio: 'inherit',
             windowsVerbatimArguments: true // Super Weird, https://github.com/nodejs/node/issues/5060
